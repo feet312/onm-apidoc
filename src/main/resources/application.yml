@@ -1,0 +1,18 @@
+##########
+### PRD 
+##########
+
+# http://[PROJECT URL]:[PORT]/webjars/swagger-ui/index.html
+
+server:
+  port: 6800
+  forward-headers-strategy: framework
+  
+  
+spring:
+  application:
+    name: onm-apidoc
+  profiles:
+    active: local
+  main:
+    banner-mode: 'off'
