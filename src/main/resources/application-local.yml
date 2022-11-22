@@ -41,11 +41,25 @@ services:
 ##                          - Add [service name] when serivce do not have context-path like 'icis-cmmn-bmon'
 ##                          - Add [context-path] when service have context-path like 'icis-samp-ppon'
 ##################################################################################################################################################################################
-spring:
+spring: 
   application:
     name: onm-apidoc
   cloud: 
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://*.sksignet.com"
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - PUT
+              - OPTIONS
+              - DELETE
+              - PATCH
+            allowedHeaders: '*'
+            allow-credentials: true
       routes:
       - id: onm-auth
         uri: http://onm-auth.sksignet.com:8800
@@ -59,7 +73,6 @@ spring:
           - Path=/onm-ba/**
         filters:
           - RewritePath=/onm-ba(?<segment>/?.*), /$\{segment}
-      
 
 
 springdoc:  
