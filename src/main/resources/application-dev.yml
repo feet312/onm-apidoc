@@ -1,1 +1,89 @@
+####################
+### dev 
+####################
 
+server:
+  port: 6800
+  forword-headers-strategy: framework
+  
+  
+  
+##################################################################################################################################################################################
+##  Swagger Target Service Names and Context-paths
+##  1. - name : [service name] ==> same as SwaggerUrl group. (see also org.springdoc.core.AbstractSwaggerUiConfigProperties.SwaggerUrl.SwaggerUrl(String group, String url))
+##       contextPath : Service's context path
+##
+##  < Notice >
+##  2. Write the [service name] when service do not have context-path(/) like 'onm-ba' or 'onm-ba'
+##    - ex-2: swagger url --> http://onm-ba.sksignet.com:9800/swagger-ui/index.html
+##
+##  3. 'icis-samp-ppon' service have context-path 'ppon' then see - name: onm-samp-ppon / contextPath: ppon
+##    - ex-3: swagger url --> http://onm-samp-ppon.sksignet.com:9999/ppon/swagger-ui/index.html
+##################################################################################################################################################################################
+services:
+  target:
+  - name: onm-auth
+    contextPath: onm-auth
+  - name: onm-ba
+    contextPath: onm-ba
+
+    
+##################################################################################################################################################################################
+## spring cloud gateway routes
+##  - Add route info of Service when you add service.target
+##
+## 1. id : Write same name of services.target.name
+## 2. uri: Write Kubernetes internal access url and port like 'icis-cmmn-bmon' uri
+## 3. predicates: - Path : 
+##                          - Add [service name] when service do not have context-path like 'icis-cmmn-bmon'
+##                          - Add [context-path] when service have context-path like 'icis-samp-ppon'
+## 4. filters: - RewritePath:
+##                          - Add [service name] when serivce do not have context-path like 'icis-cmmn-bmon'
+##                          - Add [context-path] when service have context-path like 'icis-samp-ppon'
+##################################################################################################################################################################################
+spring: 
+  application:
+    name: onm-apidoc
+  cloud: 
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - PUT
+              - OPTIONS
+              - DELETE
+              - PATCH
+            allowedHeaders: '*'
+            allow-credentials: false
+      routes:
+      - id: onm-auth
+        uri: http://onm-auth.sksignet.com:8800
+        predicates:
+          - Path=/onm-auth/**
+        filters:
+          - RewritePath=/onm-auth(?<segment>/?.*), /$\{segment}
+      - id: onm-ba
+        uri: http://onm-ba.sksignet.com:9800
+        predicates:
+          - Path=/onm-ba/**
+        filters:
+          - RewritePath=/onm-ba(?<segment>/?.*), /$\{segment}
+
+
+springdoc:  
+  swagger-ui:
+      operations-sorter: alpha
+      tags-sorter: alpha
+      disable-swagger-default-url: true
+      doc-expansion: none
+
+logging:
+  level:
+    org.springframework.cloud.gateway: info
+    com.sk.signet: debug
+    root: INFO
